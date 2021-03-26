@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="guestbook">
+	<insert id = "setInsert">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select seq_guestbook.nextval from dual
+		</selectKey>
+		insert into guestbook(no, name, email, passwd, content, regi_date) 
+		values(#{no},#{dto.name},#{dto.email},#{dto.passwd},#{dto.content},sysdate)
+	</insert>
+	<select id ="getListAll" resultType="guestbook.model.dto.GuestbookDTO">
+		
+		select * from (select A.*, Rownum Rnum from (select * from guestbook 
+		where no > 0 order by regi_date desc
+		<![CDATA[	
+		) A) where Rnum >= #{startRecord} and Rnum <= #{lastRecord}
+		]]>
+	</select>
+	<select id="getTotalRecord" resultType="int">
+		select count(*) from guestbook where 1=1
+	</select>
+	
+	<update id="setupdate">
+		update guestbook set 
+		name=#{dto.name}, email=#{dto.email}, passwd=#{dto.passwd}, content=#{dto.content} where no=#{dto.no}
+	</update>
+	
+	
+	<delete id="setDelete">
+		delete from guestbook where no = #{dto.no} and passwd = #{dto.passwd}
+	</delete>
+</mapper>

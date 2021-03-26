@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+	<sql id="search">
+			<choose>
+				<when test="search_option == 'writer_subject_content'">
+					and (writer like '%' || #{search_data} || '%' or
+						 subject like '%' || #{search_data} || '%' or
+						 content like '%' || #{search_data} || '%' )
+				</when>
+				<when test="searhc_option !=null and search_option !='' and search_data !=null and search_data !=''">
+					and (${search_option} like '%' || #{search_data} || '%')
+				</when>
+			</choose>
+	</sql>
+	<insert id="setInsert">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select seq_board.nextval from dual
+		</selectKey>						
+		insert into ${tableName01} (no, num, tbl, writer, 
+		subject, content, email, passwd, refNo, stepNo, 
+		levelNo, parentNo, hit, ip, memberNo, noticeNo, secretGubun, regidate) 
+		values(#{no},#{dto.num},#{dto.tbl},#{dto.writer},
+		#{dto.subject},#{dto.content},#{dto.email},#{dto.passwd},#{dto.refNo},#{dto.stepNo},
+		#{dto.levelNo},#{dto.parentNo},#{dto.hit},#{dto.ip},#{dto.memberNo},#{dto.noticeNo},
+		#{dto.secretGubun},sysdate)
+	</insert>
+	
+	<select id="getMaxNum" resultType="int">
+		select nvl(max(num),0)from ${tableName01}
+	</select>
+	
+	<select id="getMaxRefNo" resultType="int">
+		select nvl(max(refNo),0) from ${tableName01}
+	</select>
+	
+	<select id="getMaxNoticeNo" resultType="int">
+		select nvl(max(noticNo),0) from ${tableName01} where tbl = #{tbl}
+	</select>
+	
+	<select id="getList" resultType="board.model.dto.BoardDTO">
+		select * from (select A.*, Rownum Rnum From(
+			select t1.*, (select count(*) from ${tableName01} t2 where t2.parentNo = t1.no) child_counter, 
+			(select count(*) from board_comment where board_no = t1.no) comment_counter
+			from ${tableName01} t1 where tbl = #{tbl}
+			<choose>
+				<when test="search_option == 'writer_subject_content'">
+					and (writer like '%' || #{search_data} || '%' or
+						 subject like '%' || #{search_data} || '%' or
+						 content like '%' || #{search_data} || '%' )
+				</when>
+				<when test="search_option !=null and search_option !='' and search_data !=null and search_data !=''">
+					and ${search_option} like '%' || #{search_data} || '%'
+				</when>
+			</choose>
+			order by noticeNo desc, refNo desc, levelNo asc
+			<![CDATA[	
+				) A) where Rnum >= #{startRecord} and Rnum <= #{lastRecord}
+			]]>
+	</select>
+	
+	<select id="getTotalRecord" resultType="int">
+		select count(*) from ${tableName01} where tbl = #{tbl}
+		<choose>
+				<when test="search_option == 'writer_subject_content'">
+					and (writer like '%' || #{search_data} || '%' or
+						 subject like '%' || #{search_data} || '%' or
+						 content like '%' || #{search_data} || '%' )
+				</when>
+				<when test="searhc_option !=null and search_option !='' and search_data !=null and search_data !=''">
+					and (${search_option} like '%' || #{search_data} || '%')
+				</when>
+			</choose>
+	</select>
+	
+	<select id="getView" resultType="board.model.dto.BoardDTO">
+		select * from (select b.*, (select count(*) from ${tableName01} 
+		where refNo = b.refNo and stepNo = (b.stepNo + 1) and levelNo = (b.levelNo + 1)) child_counter, 
+		LAG(no) OVER (order by noticeNo desc, refNo desc, levelNo asc) preNo,  
+		LAG(subject) OVER (order by noticeNo desc, refNo desc, levelNo asc) preSubject, 
+		LEAD(no) OVER (order by noticeNo desc, refNo desc, levelNo asc) nxtNo, 
+		LEAD(subject) OVER (order by noticeNo desc, refNo desc, levelNo asc) nxtSubject 
+		from ${tableName01} b order by noticeNo desc, refNo desc, levelNo asc
+		) where no = #{no}
+	</select>
+	
+	<update id="setUpdatHit">
+		update ${tableName01} set hit = (hit+1) where no = #{no}
+	</update>
+	
+	<update id="setUpdateReLevel">
+		update ${tableName01} set levelNo = (levelNo+1) where refNo = #{dto.refNo} and levelNo > #{dto.levelNo}
+	</update>
+	
+	<update id="setUpdate">
+		update ${tableName01} set subject = #{dto.subject}, content = #{dto.content}, email = #{dto.email} where no = #{dto.no}
+	</update>
+	
+	<delete id ="setDelete">
+	delete from ${tableName01} where no = #{dto.no} and passwd= #{dto.passwd}
+	</delete>
+	
+	<select id="getTotalRecordComment" resultType="int">
+		select count(*) from ${tableName02} where board_no =#{no}
+	</select>
+	
+	<select id="getListComment" resultType="board.model.dto.BoardCommentDTO">
+		select * from (select A.*, Rownum Rnum From(select * from ${tableName02} 
+		where board_no =#{no} order by comment_no desc
+		<![CDATA[	
+				) A) where Rnum >= #{startRecord} and Rnum <= #{lastRecord}
+			]]>
+	</select>
+	
+	<insert id="setInsertComment">
+		<selectKey keyProperty="comment_no" resultType="int" order="BEFORE">
+			select seq_board_comment.nextval from dual
+		</selectKey>
+		insert into ${tableName02} (comment_no,board_no,writer,content,passwd,memberno,ip,regidate) 
+		values(#{comment_no},#{dto.board_no},#{dto.writer},#{dto.content},#{dto.passwd},#{dto.memberNo},#{dto.ip},sysdate)
+	</insert>
+	
+	<delete id="setCommentdelete">
+		delete from ${tableName02} where comment_no= #{dto.comment_no}
+	</delete>
+	
+	<update id="setUpdateComment">
+	update ${tableName02} set content=${dto.content} where comment_no=#{dto.comment_no}
+	</update>
+</mapper>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="memo">
+	<insert id="setInsert">
+		<selectKey keyProperty="id" resultType="int" order="BEFORE">
+			select seq_memo.nextval from dual
+		</selectKey>	
+		 insert into memo (id, name, memo, wdate) values(#{id},#{dto.name},#{dto.memo}, sysdate)
+		</insert>
+	<select id="getSelectAll" resultType="memo.model.dto.MemoDTO">
+		select * from (select A.*, Rownum Rnum from 
+		 (select * from memo where id > '0' 
+		  order by id desc ) A) 
+		<![CDATA[
+		where Rnum >= #{startRecord} and Rnum <= #{lastRecord}
+		]]>
+	</select>
+	<update id="setupdate">
+		update memo set name=#{dto.name}, memo=#{dto.memo} where id=#{dto.id}
+	</update>
+	
+	<delete id="setDelete">
+		delete from memo where id = #{dto.id}
+	</delete>	
+</mapper>

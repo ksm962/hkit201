@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="member">
+	<sql id="search">
+		<choose>
+				<when test="search_option == 'id_name_gender'">
+					and (id like '%' || #{search_data} || '%' or
+						name like '%' || #{search_data} || '%' or
+						gender like '%' || #{search_data} || '%')
+				</when>
+				<when test="search_option != null and search_option !='' and search_data != null and search_data !='' ">
+					and (${search_option} like '%' || #{search_data} || '%') <!-- $ 와 # 의 차이는 ''임 '' 있으면 # 없으면 $
+																			ex) (where name = '홍길동') = ${name} = #{홍길동}-->
+				</when>
+				<otherwise>
+					and no > '0'
+				</otherwise>
+			</choose>
+	</sql>
+
+	<select id="getSelectAll" resultType="member.model.dto.MemberDTO">
+		select * from (select A.*, Rownum Rnum From(
+			select * from member where 1=1 
+			<choose>
+			<when test="search_option == 'id_name_gender'">
+				and (id like '%' || #{search_data} || '%' or
+					name like '%' || #{search_data} || '%' or
+					gender like '%' || #{search_data} || '%')
+			</when>
+			<when test="search_option != null and search_option !='' and search_data != null and search_data !='' ">
+				and (${search_option} like '%' || #{search_data} || '%') <!-- $ 와 # 의 차이는 ''임 '' 있으면 # 없으면 $	ex) (where name = '홍길동') = ${name} = #{홍길동}-->
+			</when>
+			<otherwise>
+				and no > '0'
+			</otherwise>
+		</choose>
+			order by no desc
+			<![CDATA[	
+				) A) where Rnum >= #{startRecord} and Rnum <= #{lastRecord}
+			]]>
+	</select>
+	
+	<select id="getTotalRecord" resultType="int">
+		select count(*) from ${table_1} where 1=1 <!--1 = 1 은 항상 참이란느 뜻  -->
+		
+		<choose>
+			<when test="search_option == 'id_name_gender'">
+				and (id like '%' || #{search_data} || '%' or
+					name like '%' || #{search_data} || '%' or
+					gender like '%' || #{search_data} || '%')
+			</when>
+			<when test="search_option != null and search_option !='' and search_data != null and search_data !='' ">
+				and (${search_option} like '%' || #{search_data} || '%') <!-- $ 와 # 의 차이는 ''임 '' 있으면 # 없으면 $
+																			ex) (where name = '홍길동') = ${name} = #{홍길동}-->
+			</when>
+			<otherwise>
+				and no > '0'
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getIdcheck" resultType="int">
+		select count(*) from member where id = #{id}
+	</select>
+	
+	<select id="getIdcheckWin" resultType="String">
+		select id from member where id = #{id}
+	</select>
+	
+	<insert id="setInsert">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select seq_member.nextval from dual
+		</selectKey>						
+		insert into member (no, id, passwd, name, gender, bornyear, regidate, postcode, address, detailaddress, extraaddress ) 
+		values(#{no},#{dto.id},#{dto.passwd},#{dto.name},#{dto.gender},#{dto.bornyear},current_timestamp,#{dto.postcode},#{dto.address},#{dto.detailaddress},#{dto.extraaddress})
+	</insert>
+	
+	<update id="setupdate">
+		update member set 
+		no=#{dto.no}, name=#{dto.name}, gender=#{dto.gender}, bornyear=#{dto.bornyear}, 
+		postcode=#{dto.postcode}, address=#{dto.address}, detailaddress=#{dto.detailaddress}, extraaddress=#{dto.extraaddress} where id=#{dto.id} and passwd=#{dto.passwd}
+	</update>
+	
+	<delete id="setDelete">
+		delete from member where no = #{dto.no} and passwd = #{dto.passwd}
+	</delete>
+	
+	<select id ="login" resultType="member.model.dto.MemberDTO">
+		select * from member where id=#{dto.id} and passwd=#{dto.passwd}	
+	</select>
+	
+	<select id="getView" resultType="member.model.dto.MemberDTO"> 
+		select * from member where no=#{no}
+	</select>
+
+</mapper>

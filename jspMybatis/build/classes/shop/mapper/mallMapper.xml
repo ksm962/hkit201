@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ 
+<mapper namespace="mall">
+	<sql id="search">
+			<choose>
+					<when test="search_option == 'name_description'">
+						and (name like '%' || #{search_data} || '%' or
+							description like '%' || #{search_data} || '%')
+					</when>
+					<when test="search_option != null and search_option !='' and search_data != null and search_data !='' ">
+						and (${search_option} like '%' || #{search_data} || '%') <!-- $ 와 # 의 차이는 ''임 '' 있으면 # 없으면 $													ex) (where name = '홍길동') = ${name} = #{홍길동}-->
+					</when>
+					<otherwise>
+						and no > '0'
+					</otherwise>
+				</choose>
+		</sql>
+	<insert id="setInsert">
+		<selectKey keyProperty="no" resultType="int" order="BEFORE">
+			select seq_cart.nextval from dual
+		</selectKey>
+		insert into cart(no,memberNo,productNo,amount,regi_date) 
+		values(#{no},#{dto.memberNo},#{dto.productNo},#{dto.amount},current_timestamp)			
+	</insert>
+	
+	<select id="getTotalRecord" resultType="int">
+		select count(*) from cart where 1=1
+		
+	</select>
+	
+	<select id="getList" resultType="shop.model.dto.CartDTO">
+		select * from (select A.*, Rownum Rnum from(
+				select product.no product_no, cart.no no, product.name product_name, product.price product_price, 
+				product.product_img product_img, cart.amount amount, cart.regi_date regi_date, 
+				(product.price * cart.amount) buy_money  from cart,product where cart.productNo = product.no
+				order by no desc
+			<![CDATA[	
+				) A) where Rnum >= #{startRecord} and Rnum <= #{lastRecord}
+			]]>
+	</select>
+	
+	<delete id="setDeleteBatch" parameterType="map">
+		delete from cart where no in(
+		<foreach collection="array" index="index" item="item" open="" close=""
+		 separator=",">
+		 #{item}		
+		</foreach>
+		)
+	</delete>
+	<select id="getListCartProductGroup" resultType="shop.model.dto.CartDTO">
+		select p.name product_name, sum(c.amount * p.price) buy_money 
+		from cart c inner join product p on c.productNo = p.no 
+		group by p.name 
+		order by product_name asc
+	</select>
+	
+	
+</mapper>
