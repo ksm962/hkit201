@@ -1,12 +1,7 @@
 package board.model.dao;
 
 import java.sql.Connection;
-
-
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,13 +10,10 @@ import org.apache.ibatis.session.SqlSession;
 
 import board.model.dto.BoardCommentDTO;
 import board.model.dto.BoardDTO;
-import member.model.dto.MemberDTO;
+
 import sqlmap.MybatisManager;
 
-
 public class BoardDAO {
-
-
 
 	String tableName01 = "board";
 	String tableName02 = "board_comment";
@@ -230,6 +222,25 @@ public class BoardDAO {
 		return result;	
 	}
 	
+	public Map<String, Object> isUsingTable(String tbl) {
+		Map<String, String> map = new HashMap<>();
+		map.put("tbl", tbl);
+		
+		SqlSession session = MybatisManager.getInstance().openSession();
+		Map<String, Object> tblStatusMap = session.selectOne("board.isUsingTable", map);
+		
+		if (tblStatusMap == null) {
+			tblStatusMap = new HashMap<>();
+			tblStatusMap.put("SERVICEGUBUN", "F");
+			tblStatusMap.put("TBLNAME", "none");
+		}
+		
+		session.close();
+		return tblStatusMap;
+	
+	
+		
+	}
 	
 	
 }

@@ -1,0 +1,53 @@
+create table board(
+no number not null,
+num number not null,
+tbl varchar2(50) not null,
+writer varchar2(50) not null,
+subject varchar2(50) not null,
+content clob not null,
+email varchar2(50) not null,
+passwd varchar2(50) not null,
+refNo number not null,
+stepno number not null,
+levelno number not null,
+parentno number not null,
+hit number not null,
+ip varchar2(50) not null,
+memberno number not null,
+noticeno number not null,
+secretgubun varchar2(1) not null check (secretgubun in ('T', 'F')),
+regidate date default sysdate,
+primary key(no)
+);
+
+create sequence seq_board start with 1 increment by 1 nomaxvalue nocache;
+
+create table board_comment (
+    comment_no number not null primary key,
+    board_no number not null references board(no),
+    writer varchar2(50) not null,
+    content clob not null,
+    passwd varchar2(50) not null,
+    memberNo number not null,
+    ip varchar2(50) not null,
+    regiDate date default sysdate
+);
+
+create sequence seq_board_comment start with 1 increment by 1 nomaxvalue nocache;
+
+
+ CREATE TABLE BOARDCHK (	
+NO NUMBER NOT NULL , 
+TBL VARCHAR2(50 BYTE) NOT NULL , 
+TBLNAME VARCHAR2(50 BYTE) NOT NULL , 
+SERVICEGUBUN VARCHAR2(50 BYTE) NOT NULL , 
+REGIDATE DATE DEFAULT sysdate, 
+ CHECK (servicegubun in('T','F')) ENABLE, 
+ PRIMARY KEY ("NO")
+ 
+ 
+ 
+INSERT INTO boardChk VALUES (seq_boardChk.NEXTVAL, 'freeboard', '�����Խ���', 'T', SYSDATE);
+INSERT INTO boardChk VALUES (seq_boardChk.NEXTVAL, 'funnyboard', '���ӰԽ���', 'T', SYSDATE);
+INSERT INTO boardChk VALUES (seq_boardChk.NEXTVAL, 'memberboard', 'ȸ������Խ���', 'F', SYSDATE);
+INSERT INTO boardChk VALUES (seq_boardChk.NEXTVAL, 'javaboard', '�ڹٰԽ���', 'T', SYSDATE);

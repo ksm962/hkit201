@@ -1,22 +1,36 @@
 package common;
 
-import java.net.Inet4Address;
-import java.net.UnknownHostException;
 
-import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+
+
+
+import board.model.dao.BoardDAO;
+
 
 public class UtilBoard extends Util {
 	
 		public String tblCheck(String tbl, String defaultTbl) {
 			if(tbl == null || tbl.trim().equals("")) {
 				tbl = defaultTbl;
-				tbl = tbl.trim();
+				
 			}
+			tbl = tbl.trim();
 			return tbl;
 		}
-		
-		
-		
+		public ArrayList<String> tblStatus(String tbl) {
+			BoardDAO dao = new BoardDAO();
+			Map<String, Object> tblStatusMap = dao.isUsingTable(tbl);
+			
+			ArrayList<String> tblStatus = new ArrayList<>();
+			tblStatus.add((String)tblStatusMap.get("SERVICEGUBUN"));
+			tblStatus.add((String)tblStatusMap.get("TBLNAME"));
+			return tblStatus;
+		}
+		 
 		
 		//overloading
 		public String[] searchCheck(String search_option, String search_data) {

@@ -59,9 +59,14 @@ public class boardController extends HttpServlet {
                             
       temp = request.getParameter("pageNumber");
       int pageNumber = util.numberCheck(temp, 1);
-      
+       
       temp = request.getParameter("tbl");
-      String tbl = util.tblCheck(temp, "freeboard");
+ 		
+		String tbl = util.tblCheck(temp, "freeboard");
+		ArrayList<String> tblStatus = util.tblStatus(tbl);
+		String isUsingTable = tblStatus.get(0);
+		String tableName = tblStatus.get(1);
+
 
       temp = request.getParameter("no");
       int no = util.numberCheck(temp, 0);
@@ -84,6 +89,8 @@ public class boardController extends HttpServlet {
       request.setAttribute("no", no);
       request.setAttribute("search_option", search_option);
       request.setAttribute("search_data", search_data);
+      request.setAttribute("isUsingTable", isUsingTable);
+      request.setAttribute("tableName", tableName);
       
       BoardDAO dao = new BoardDAO();
       BoardDTO dto = new BoardDTO();

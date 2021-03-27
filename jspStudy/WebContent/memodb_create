@@ -1,0 +1,9 @@
+create table memo(
+id number not null,
+name varchar2(50) not null,
+memo clob not null,
+wdate date DEFAULT SYSDATE,
+primary key(id)
+);
+
+create sequence seq_memo start with 1 INCREMENT by 1 MINVALUE 1;

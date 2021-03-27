@@ -61,7 +61,6 @@ public class SurveyController extends HttpServlet {
 		temp=request.getParameter("list_gubun");
 		String list_gubun=util.list_gubunCheck(temp);
 		
-		
 		String search_option = request.getParameter("search_option");
 		String search_data= request.getParameter("search_data");
 		String search_date_s= request.getParameter("search_date_s");

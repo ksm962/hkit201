@@ -1,0 +1,41 @@
+create table survey(
+no number not null,
+question varchar2(4000) not null, -문제
+ans1 varchar2(500) not null,
+ans2 varchar2(500) not null,
+ans3 varchar2(500) not null,
+ans4 varchar2(500) not null,
+status char(1) default '1', -질문상태
+start_date timestamp default current_timestamp,
+last_date timestamp default current_timestamp,
+regi_date timestamp default current_timestamp,
+primary key(no)
+);
+
+create sequence seq_survey start with 1 increment by 1 minvalue 1;
+
+
+
+create table survey_answer(
+answer_no number not null primary key,
+no number not null references survey(no),
+answer number not null,
+regi_date timestamp default current_timestamp
+);
+
+
+create sequence seq_survey_answer start with 1 increment by 1 minvalue 1;
+
+
+
+메소드 getTotalRecord sql문
+select count(*) from survey where no > ?
+select * from survey where no > 0 and current_timestamp between start_date and last_date;
+select*from survey where no >0 and current_timestamp > last_date;
+
+
+카운터 갯수세기
+select t1.*, 
+(select count(*) from  survey_answer t2 where t2.no=t1.no) survey_counter 
+from survey t1 where no >0;
+

@@ -128,6 +128,10 @@ PUBLIC "-//mybatis.org//DTO Mapper 3.0//EN"
 	</delete>
 	
 	<update id="setUpdateComment">
-	update ${tableName02} set content=${dto.content} where comment_no=#{dto.comment_no}
+		update ${tableName02} set content=${dto.content} where comment_no=#{dto.comment_no}
 	</update>
+	
+	<select id="isUsingTable" resultType="map">
+		SELECT tblName, serviceGubun FROM boardChk WHERE tbl = #{tbl}
+	</select>
 </mapper>

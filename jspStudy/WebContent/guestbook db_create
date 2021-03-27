@@ -1,0 +1,11 @@
+create table guestbook(
+no number not null,
+name varchar2(50) not null,
+email varchar2(50) not null,
+passwd varchar2(50) not null,
+content clob not null,
+regi_date date default sysdate,
+primary key(no)
+);
+
+create sequence seq_guestbook   start with 1 increment by 1 nomaxvalue nocache;
