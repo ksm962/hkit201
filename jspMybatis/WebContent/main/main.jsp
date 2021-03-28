@@ -28,7 +28,6 @@
 	<tr>
 		<td align="center" style="padding:50px 50px; height:80%;">
 
-
 	<c:choose>
 
 		<c:when test="${menu_gubun == 'index' }" > <%-- home --%>
@@ -77,6 +76,8 @@
 		<c:when test="${menu_gubun == 'email_index' }" >
 			<jsp:include page="../email/index.jsp" />
 		</c:when>
+
+	
 	
 		
 		

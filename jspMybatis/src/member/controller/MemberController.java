@@ -60,7 +60,7 @@ public class MemberController extends HttpServlet {
 	      String ip = serverInfo[4];
 
 	      String temp;
-          
+	       
 	      temp = request.getParameter("pageNumber");
 	      int pageNumber = util.numberCheck(temp, 1);
 
@@ -136,10 +136,9 @@ public class MemberController extends HttpServlet {
 			int result = dao.setInsert(dto);
 
 		} else if (url.indexOf("login.do") != -1) {
+			
+		
 			request.setAttribute("menu_gubun", "member_login");
-			
-			
-			
 			RequestDispatcher rd = request.getRequestDispatcher(page);
 			rd.forward(request, response);
 
@@ -197,10 +196,11 @@ public class MemberController extends HttpServlet {
 			if (session.getAttribute("cookNo") == null) {
 				response.setContentType("text/html;charset=utf-8");
 				PrintWriter out = response.getWriter();
-
+				
 				out.println("<script>");
 				out.println("alert('로그인 후 이용하세요')");
-				out.println("location.href='" + path + "';");
+				out.println("location.href='" + path + "/member_servlet/login.do';");
+//				out.println("suntaek_proc('chuga','1','');");
 				out.println("</script>");
 
 			} else {
